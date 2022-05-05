@@ -10,11 +10,6 @@ module.exports=(req,res,next)=>{
             req.userData=decoded;  
             
                 next();
-            
-            
-
-           
-       
     }
 
     catch(error){

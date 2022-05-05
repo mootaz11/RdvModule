@@ -9,4 +9,4 @@ const rdvModel = new mongoose.Schema({
 });
 
 
-module.exports = mongoose.model('rdv', rdvModel);
+module.exports = mongoose.model('rdvs', rdvModel);

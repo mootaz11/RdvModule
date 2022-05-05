@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-
 const userModel = new mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     nom: { type: String, required: true },
@@ -16,6 +15,7 @@ const userModel = new mongoose.Schema({
         enum: ['client', 'conseiller']
     },
     email: { type: String, required: true },
+    agence: {type:mongoose.Schema.Types.ObjectId,ref:'agence'}
 });
 
 

@@ -4,8 +4,6 @@ const jwt = require("jsonwebtoken");
 const userModel = require('../models/user');
 
 
-
-
 exports.getAllConseillers = async  (req,res) => {
     try { 
        const conseillers = await userModel.find({role:'conseiller'});
@@ -16,11 +14,9 @@ exports.getAllConseillers = async  (req,res) => {
 
     catch (err){
         return res.status(500).json(err);
-
     
     }
 }
-
 
 exports.getAllClients =async  (req,res) => {
     try { 
@@ -34,9 +30,6 @@ exports.getAllClients =async  (req,res) => {
          return res.status(500).json(err);
      }
 }
-
-
-
 
 exports.signup = async (req,res)=>{
 try {
