@@ -8,10 +8,8 @@ exports.getAllConseillers = async  (req,res) => {
     try { 
        const conseillers = await userModel.find({role:'conseiller'});
        conseillers &&  conseillers.length > 0 && res.status(200).json(conseillers);
-       conseillers &&  conseillers.length == 0 && res.status(200).json([]);
+       conseillers &&  conseillers.length == 0 && res.status(404).json({message:"conseillers not found"});
     }
-
-
     catch (err){
         return res.status(500).json(err);
     
@@ -22,7 +20,7 @@ exports.getAllClients =async  (req,res) => {
     try { 
         const clients = await userModel.find({role:'client'});
         clients &&  clients.length > 0 && res.status(200).json(clients);
-        clients &&  clients.length == 0 && res.status(200).json([]);
+        clients &&  clients.length == 0 && res.status(404).json({message:"clients not found"});
      }
  
  
@@ -66,7 +64,7 @@ try {
                         }
                         else 
                         {
-                            return res.status(400).json({ message: 'something went wrong', user });
+                            return res.status(400).json({ message: 'something went wrong'});
                         }
                     })
                     .catch(err => {
