@@ -3,6 +3,7 @@ const BodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const morgan = require("morgan");
 const cors = require("cors");
+const http = require('http');
 
 const app = Express();
 
@@ -13,31 +14,49 @@ app.use(morgan('tiny'));
 
 
 //database connection 
-
 const uri="mongodb://127.0.0.1:27017/rdv";
-
-
 
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
 mongoose.connection.on('err', () => { console.log('connection failed') });
 mongoose.connection.on('ok', () => { console.log('connection done') })
 
 
-// routes
 
+// routes
 const userRoute = require("./routes/user");
 const rdvRoute = require("./routes/rdv");
 const agenceRoute = require("./routes/agence");
+const calendarRoute = require("./routes/calendar")
 
 
 app.use("/user",userRoute);
 app.use("/rdv", rdvRoute);
 app.use("/agence", agenceRoute);
+app.use("/calendar", calendarRoute);
+
 
 
 
 app.use('/uploads', Express.static('uploads'));
 
-app.listen(3000, () => {
-    console.log("app is running on port " + 3000);
-})
+
+const server = http.createServer(app)
+const io = require('socket.io')(server)
+
+
+
+
+server.listen(3000, () => {
+
+    console.log("server is listenning on 3000");
+
+    io.on('connection', (socket) => {
+
+        socket.on('dismiss rdv',(rdv)=>{
+            
+        })
+    })})
+
+
+
+

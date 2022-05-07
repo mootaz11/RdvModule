@@ -1,7 +1,6 @@
 const router = require("express").Router()
 const authentication = require("../middlewares/authentication");
 const agenceController = require("../controllers/agenceController");
-const { route } = require("./user");
 
 
 router.get("/",authentication,agenceController.getAgences);

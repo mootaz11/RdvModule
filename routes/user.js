@@ -4,6 +4,7 @@ const userController = require("../controllers/userController");
 
 router.get("/client",userController.getAllClients);
 router.get("/conseiller",userController.getAllConseillers);
+router.get("/",userController.getAllUsers);
 router.post("/signup/", userController.signup);
 router.post("/login/", userController.login);
 
@@ -13,7 +14,6 @@ router.patch("/client/:id",authentication,userController.updateClient);
 
 router.delete("/client/:id",authentication,userController.deleteClient);
 router.delete("/conseiller/:id",authentication,userController.deleteConseiller);
-
 
 
 module.exports = router;    

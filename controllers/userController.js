@@ -4,6 +4,19 @@ const jwt = require("jsonwebtoken");
 const userModel = require('../models/user');
 
 
+exports.getAllUsers = async (req,res) =>{
+    try {
+        const users = await userModel.find({$or :[{role:'conseiller'},{role:'client'}]});
+        users &&  users.length > 0 && res.status(200).json(users);
+        users &&  users.length == 0 && res.status(404).json({message:"users not found"});
+    }
+
+    catch(err){
+        return res.status(500).json(err);
+    }
+}
+
+
 exports.getAllConseillers = async  (req,res) => {
     try { 
        const conseillers = await userModel.find({role:'conseiller'});
@@ -228,6 +241,21 @@ exports.deleteConseiller = (req,res)=>{
     .catch(err => {
         return res.status(500).json(err);
     })
+}
+
+
+
+exports.getUser = async (req,res)=>{
+        
+    try {
+        const user = await userModel.findById(req.params.id).populate('calendar');
+        user && res.status(200).json(user);
+        !user && res.status(404).json({message:"agence not found"});
+    }
+    catch( err) { 
+        return res.status(500).json(err);
+    }
+
 }
 
 

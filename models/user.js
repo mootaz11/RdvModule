@@ -12,10 +12,11 @@ const userModel = new mongoose.Schema({
     cin : { type:String,required:true},
     role: {
         type: String,
-        enum: ['client', 'conseiller']
+        enum: ['client', 'conseiller','admin']
     },
     email: { type: String, required: true },
-    agence: {type:mongoose.Schema.Types.ObjectId,ref:'agence'}
+    agence: {type:mongoose.Schema.Types.ObjectId,ref:'agences'},
+    calendar: {type:mongoose.Schema.Types.ObjectId,ref:'calendars'}
 });
 
 
