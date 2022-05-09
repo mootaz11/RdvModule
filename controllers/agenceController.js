@@ -91,7 +91,7 @@ exports.addConseiller=async (req,res)=>{
     userModel.findOne({$and : [{_id:req.params.idconseiller},{role:"conseiller"}]}).exec()
     .then(async conseiller=>{
            
-        const agence = await agenceModel.findOneAndUpdate({$and:[{_id:req.params.idagence},{conseillers:{$ne:conseiller}}]},{$push:{conseillers:conseiller}})        
+        const agence = await agenceModel.findOneAndUpdate({$and:[{_id:req.params.idagence},{conseillers:{$nin:[conseiller]}}]},{$push:{conseillers:conseiller}})        
         if(agence){
             conseiller.agence=agence._id;
             conseiller.save().then(updated=>{

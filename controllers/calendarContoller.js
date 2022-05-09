@@ -22,6 +22,9 @@ exports.creatCalendar = (req,res)=>{
         {
             return res.status(400).json({ message: 'something went wrong' });
         }
+    }).catch(err=>{
+        return res.status(500).json(err);
+
     })
 }
 
