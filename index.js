@@ -27,12 +27,18 @@ const userRoute = require("./routes/user");
 const rdvRoute = require("./routes/rdv");
 const agenceRoute = require("./routes/agence");
 const calendarRoute = require("./routes/calendar")
+const feedbackRoute = require("./routes/feedback")
+const notificationRoute = require("./routes/notification")
+
 
 
 app.use("/user",userRoute);
 app.use("/rdv", rdvRoute);
 app.use("/agence", agenceRoute);
 app.use("/calendar", calendarRoute);
+app.use("/notification", notificationRoute);
+app.use("/feedback", feedbackRoute);
+
 
 
 
@@ -52,7 +58,8 @@ server.listen(3000, () => {
 
     io.on('connection', (socket) => {
 
-        socket.on('dismiss rdv',(rdv)=>{
+        socket.on('rdv-notconfirmed',({clientId,notification_created})=>{
+            console.log(notification_created)
             
         })
     })})

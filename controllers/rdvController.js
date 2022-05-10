@@ -1,6 +1,7 @@
 const rdvModel = require("../models/rdv");
 const socket = require('socket.io-client')("localhost:3000");
 const notificationModel = require("../models/notification");
+const mongoose = require('mongoose');
 
 
 exports.createRdv = (req,res) => { 
@@ -11,7 +12,8 @@ exports.createRdv = (req,res) => {
                 date: req.body.date,
                 hour : req.body.hour,
                 confirmed: false,
-                participants:req.body.participants
+                participants:req.body.participants,
+                state:'opened'
             })
             rdv.save().then(rdvCreated=>{
                 if(rdvCreated){
@@ -28,7 +30,8 @@ exports.createRdv = (req,res) => {
             })
     }
     catch(err){
-        return XPathResult.status(500).json(err)
+
+        return res.status(500).json(err)
     }
 }
 
@@ -104,7 +107,7 @@ catch (err){
 
 exports.getRdvsByConseiller = async (req,res) =>{
     try {
-    const rdvs = await rdvModel.find({participants:{"$in":[req.params.idconseiller]}});
+    const rdvs = await rdvModel.find({$and :[{participants:{"$in":[req.params.idconseiller]}},{state:"opened"}]});
     rdvs && rdvs.length>0 &&  res.status(200).json(rdvs);
     rdvs && rdvs.length==0 && res.status(404).json({message:"rdvs not found"});
     }
@@ -113,9 +116,20 @@ exports.getRdvsByConseiller = async (req,res) =>{
     }
 }
 
+exports.getClosedRdvs = async (req,res) =>{
+    try{
+        const rdv = await rdvModel.find({$and:[{_id:req.params.id},{state:"closed"}]}).populate('participants')
+        rdv && res.status(200).json(rdv);
+        !rdv && res.status(404).json({message:"closed rdv not found"});
+    }
+    catch(err){
+        return res.status(500).json(err)
+    }
+}
+
 exports.getRdv = async (req,res) => {    
     try {
-        const rdv = await rdvModel.findById(req.params.id)
+        const rdv = await rdvModel.findById(req.params.id).populate('participants')
         rdv && res.status(200).json(rdv);
         !rdv && res.status(404).json({message:"rdv not found"});
     }

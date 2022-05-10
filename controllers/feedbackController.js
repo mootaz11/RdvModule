@@ -1,7 +1,7 @@
 const feedbackModel = require("../models/feedback");
 
 
-exports.getfeedbacks = (req,res)=>{
+exports.getfeedbacks = async  (req,res)=>{
     try {
         const feedbacks = await feedbackModel.find();
         feedbacks && res.status(200).json(feedbacks);

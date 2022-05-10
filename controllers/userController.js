@@ -19,7 +19,7 @@ exports.getAllUsers = async (req,res) =>{
 
 exports.getAllConseillers = async  (req,res) => {
     try { 
-       const conseillers = await userModel.find({role:'conseiller'});
+       const conseillers = await userModel.find({role:'conseiller'}).populate('calendar');
        conseillers &&  conseillers.length > 0 && res.status(200).json(conseillers);
        conseillers &&  conseillers.length == 0 && res.status(404).json({message:"conseillers not found"});
     }
@@ -28,7 +28,6 @@ exports.getAllConseillers = async  (req,res) => {
     
     }
 }
-
 exports.getAllClients =async  (req,res) => {
     try { 
         const clients = await userModel.find({role:'client'});

@@ -7,8 +7,9 @@ const rdvModel = new mongoose.Schema({
     date: {type:Date,required:true},
     hour : {type:String,required:true},
     confirmed: {type:Boolean,default:false},
-    participants:[{type:mongoose.Schema.Types.ObjectId,ref:'users'}]
+    participants:[{type:mongoose.Schema.Types.ObjectId,ref:'users'}],
+    state: {type: String,enum: ['opened', 'closed']
+}
 });
-
 
 module.exports = mongoose.model('rdvs', rdvModel);

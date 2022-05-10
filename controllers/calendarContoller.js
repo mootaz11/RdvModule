@@ -1,4 +1,4 @@
-const calendarModel = require("../models/agence");
+const calendarModel = require("../models/calendar");
 const userModel = require("../models/user");
 const mongoose = require("mongoose");
 
@@ -12,11 +12,18 @@ exports.creatCalendar = (req,res)=>{
         starthour:req.body.starthour,
         lasthour:req.body.lasthour,
         notavailabledays :req.body.notavailabledays,
-        conseiller:req.body.conseiller
+        conseiller:req.params.idconseiller
     })
-    calendar.save().then((calendar_crated) =>{
+    calendar.save().then( async (calendar_crated) =>{
         if (calendar_crated) {
-            return res.status(201).json({ message: 'calendar created', calendar_crated });
+            const conseillerupdated = await userModel.findByIdAndUpdate(req.params.idconseiller,{$set:{calendar:calendar_crated}})
+            if(conseillerupdated){
+                return res.status(201).json({ message: 'calendar created', calendar_crated });
+            }
+            else {
+                return res.status(400).json({ message: 'something went wrong'});
+
+            }
         }
         else 
         {

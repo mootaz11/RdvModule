@@ -10,3 +10,4 @@ router.patch("/:id",authentication,agenceController.updateAgence);
 router.delete("/:id",authentication,agenceController.deleteAgence);
 router.post("/conseiller/:idagence/:idconseiller",authentication,agenceController.addConseiller);
 module.exports = router;    
+
