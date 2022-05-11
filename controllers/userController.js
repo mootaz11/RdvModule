@@ -67,6 +67,7 @@ try {
                     genre:req.body.genre,
                     role: req.body.role,
                     cin:req.body.cin,
+                    image:req.file.path,
                     numtel:req.body.numtel
                 })
                 user.save()

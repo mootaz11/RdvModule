@@ -32,6 +32,7 @@ exports.createAgence = (req,res)=>{
         _id: new mongoose.Types.ObjectId(),
         title: req.body.title,
         addresse:req.body.addresse,
+        image:req.file.path,
         conseillers : []
     })
     agence.save().then((agence_crated) =>{
