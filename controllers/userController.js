@@ -104,9 +104,10 @@ if (user) {
             return new Error("comparing failed");
         }
         if (same) {
-
-            const token = jwt.sign({user_id: user._id, role: user.role }, "Secret", { expiresIn: 60 * 60 * 60 })
-            return res.status(200).json({ message: 'login successfully', token });
+            let nom=user.nom
+            let role=user.role
+            const token = jwt.sign({user_id: user._id, role: user.role,nom:user.nom }, "Secret", { expiresIn: 60 * 60 * 60 })
+            return res.status(200).json({ message: 'login successfully', token,nom,role  });
         } 
         else
         {
@@ -245,18 +246,20 @@ exports.deleteConseiller = (req,res)=>{
 
 
 
-exports.getUser = async (req,res)=>{
-        
-    try {
-        const user = await userModel.findById(req.params.id).populate('calendar');
-        user && res.status(200).json(user);
-        !user && res.status(404).json({message:"agence not found"});
-    }
-    catch( err) { 
-        return res.status(500).json(err);
-    }
+exports.getUser =(req,res)=>{
+userModel.findById(req.params.id)
+.populate('calendar')
+.then(user=>{
+     if(user){
+   user.image="http://localhost:3000/" + user.image.split("\\")[0]+ "/"+ user.image.split("\\")[1] ;
+        res.status(201).json(user)
+     }else{
+         res.status(401).json({message:'there is no user with this id '})
+     }
+}
+)
+.catch(err=>{
+    res.send(err)
+})
 
 }
-
-
-

@@ -107,7 +107,7 @@ catch (err){
 
 exports.getRdvsByConseiller = async (req,res) =>{
     try {
-    const rdvs = await rdvModel.find({$and :[{participants:{"$in":[req.params.idconseiller]}},{state:"opened"}]});
+    const rdvs = await rdvModel.find({$and :[{participants:{"$in":[req.params.idconseiller]}},{state:"opened"}]}).populate('participants')
     rdvs && rdvs.length>0 &&  res.status(200).json(rdvs);
     rdvs && rdvs.length==0 && res.status(404).json({message:"rdvs not found"});
     }
@@ -115,6 +115,7 @@ exports.getRdvsByConseiller = async (req,res) =>{
         return res.status(500).json(err);
     }
 }
+
 
 exports.getClosedRdvs = async (req,res) =>{
     try{

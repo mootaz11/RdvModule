@@ -5,7 +5,12 @@ const mongoose = require("mongoose");
 exports.getAgences= async (req,res) =>{
 try {
     const agences = await agenceModel.find().populate('conseillers');
-    agences && agences.length>0 &&  res.status(200).json(agences);
+    agences && agences.length>0 && agences.map(result=>{
+        if(result.image){
+            result.image="http://localhost:3000/" + result.image.split("\\")[0]+ "/"+ result.image.split("\\")[1] ;
+        }
+        return result
+    }) && res.status(200).json(agences);
     agences && agences.length==0 && res.status(404).json({message:"agences not found"});
 }
 catch( err) { 
@@ -91,7 +96,6 @@ exports.addConseiller=async (req,res)=>{
 
     userModel.findOne({$and : [{_id:req.params.idconseiller},{role:"conseiller"}]}).exec()
     .then(async conseiller=>{
-           
         const agence = await agenceModel.findOneAndUpdate({$and:[{_id:req.params.idagence},{conseillers:{$nin:[conseiller]}}]},{$push:{conseillers:conseiller}})        
         if(agence){
             conseiller.agence=agence._id;
