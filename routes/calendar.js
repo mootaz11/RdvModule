@@ -5,7 +5,7 @@ const calendarController = require("../controllers/calendarContoller");
 
 
 router.get("/:id",authentication,calendarController.getCalendar);
-router.post("/:idconseiller",authentication, calendarController.creatCalendar);
+router.post("/:idconseiller", calendarController.creatCalendar);
 router.patch("/:id",authentication,calendarController.updateCalendar);
 router.delete("/:id",authentication,calendarController.deleteCalendar);
 

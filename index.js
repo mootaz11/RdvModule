@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const morgan = require("morgan");
 const cors = require("cors");
 const http = require('http');
-
+const jwt = require('jsonwebtoken');
 const app = Express();
 
 app.use(BodyParser.urlencoded({ extended: false }))
@@ -39,29 +39,122 @@ app.use("/calendar", calendarRoute);
 app.use("/notification", notificationRoute);
 app.use("/feedback", feedbackRoute);
 
-
-
-
-
 app.use('/uploads', Express.static('uploads'));
 
-
 const server = http.createServer(app)
-const io = require('socket.io')(server)
+
+const io = require('socket.io')(server,{cors: {
+    origin: "http://localhost:4200"
+  }})
 
 
+const connectedusers = []; 
 
 
 server.listen(3000, () => {
-
-    console.log("server is listenning on 3000");
-
+    console.log("server is listening on 3000");
     io.on('connection', (socket) => {
+        socket.on('connect-server',({token})=>{
+            try {
+                let user = jwt.decode(token)
+                const clientIndex = connectedusers.findIndex((connected)=>{return connected.client == user.user_id});
+                if(clientIndex===-1){
+                    console.log(socket.id)
+                    connectedusers.push({client:user.user_id,socketIds:[socket.id]});
+                }
+                else {
+                    if (!connectedusers[userIndex].socketIds.includes(socket.id))
+                    connectedusers[userIndex].socketIds.push(socket.id)
+                    }
+            }
+            catch (err){
+                console.log(err);
+            } 
+        })
+        socket.on('disconnect-server', () => {
+            const userIndex = connectedusers.findIndex(connecteduser => {
+                return connecteduser.socketIds.includes(socket.id)
+            })
+            if (userIndex >= 0) {
+                const socketIndex = connectedusers[userIndex].socketIds.findIndex(socketId => socketId === socket.id)
+                connectedusers[userIndex].socketIds.splice(socketIndex, 1)
+                if (connectedusers[userIndex].socketIds.length === 0) {
+                    connectedusers.splice(userIndex, 1)
+                }
+
+            }
+        })
+
+        socket.on('rdv-confirmed',({clientId,notification_created})=>{
+            const userIndex = connectedusers.findIndex((connecteduser) => {
+                return connecteduser.client === clientId
+            })
+            if (userIndex >= 0)
+            {
+                connectedusers[userIndex].socketIds.forEach(socketId => {
+                    socket.broadcast.to(socketId).emit('rdv-confirmed-client', {client:clientId,notification_created});
+                })
+            }
+        })
 
         socket.on('rdv-notconfirmed',({clientId,notification_created})=>{
-            console.log(notification_created)
-            
+            const userIndex = connectedusers.findIndex((connecteduser) => {
+                return connecteduser.client === clientId
+            })
+            if (userIndex >= 0)
+            {
+                connectedusers[userIndex].socketIds.forEach(socketId => {
+                    socket.broadcast.to(socketId).emit("rdv-notconfirmed-client", {client:clientId,notification_created});
+                })
+
+            }
         })
+
+       
+
+
+        socket.on('rdv-created',({conseillerId,notification_created})=>{
+            const userIndex = connectedusers.findIndex((connecteduser) => {
+                return connecteduser.client === conseillerId
+            })
+
+            if (userIndex >= 0)
+            {
+                connectedusers[userIndex].socketIds.forEach(socketId => {
+                    socket.broadcast.to(socketId).emit("rdv-created-client", {conseillerId,notification_created});
+                })
+
+            }
+        })
+        
+        socket.on('rdv-deleted',({conseillerId,notification_created})=>{
+            const userIndex = connectedusers.findIndex((connecteduser) => {
+                return connecteduser.client === conseillerId
+            })
+            if (userIndex >= 0)
+            {
+                connectedusers[userIndex].socketIds.forEach(socketId => {
+                    socket.broadcast.to(socketId).emit("rdv-deleted-client",{conseillerId,notification_created});
+                })
+            }
+        })
+
+        socket.on('rdv-updated',({conseillerId,notification_created})=>{
+            const userIndex = connectedusers.findIndex((connecteduser) => {
+                return connecteduser.client === conseillerId
+            })
+            
+            if (userIndex >= 0)
+            {
+                connectedusers[userIndex].socketIds.forEach(socketId => {
+                    socket.broadcast.to(socketId).emit("rdv-updated-client",{conseillerId,notification_created});
+                })
+            }
+
+        })
+
+    
+
     })})
 
 

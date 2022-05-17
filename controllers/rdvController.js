@@ -1,5 +1,5 @@
 const rdvModel = require("../models/rdv");
-const socket = require('socket.io-client')("localhost:3000");
+const socket = require('socket.io-client')("http://localhost:3000");
 const notificationModel = require("../models/notification");
 const mongoose = require('mongoose');
 
@@ -17,7 +17,17 @@ exports.createRdv = (req,res) => {
             })
             rdv.save().then(rdvCreated=>{
                 if(rdvCreated){
-                    return res.status(201).json({ message: 'rdv created', rdvCreated });
+                    const Notification = new notificationModel({
+                        _id:mongoose.Types.ObjectId(),
+                        message:" rendez-vous est créé",
+                        user:req.params.idconseiller
+                    })
+                    Notification.save().then(notif_created=>{
+                        if (notif_created){
+                            socket.emit('rdv-created',{conseillerId:req.params.idconseiller,notification:notif_created});
+                           res.status(201).json({ message: 'rdv created', rdvCreated });
+                        }
+                    })
             }
             else 
             {
@@ -43,8 +53,32 @@ exports.updateRdv = async (req,res) => {
                 rdv[element]=req.body[element];
             })
             rdv.save().then(rdv_updated=>{
-                rdv_updated && res.status(200).json(rdv_updated);
-                !rdv_updated && res.status(400).json({message:'something went wrong'});
+
+                if(rdv_updated){
+                    const Notification = new notificationModel({
+                        _id:mongoose.Types.ObjectId(),
+                        message:" rendez-vous est mis à jour",
+                        user:req.params.idconseiller
+                    })
+
+                    Notification.save().then(notif_created=>{
+                       if(notif_created){
+                        socket.emit('rdv-updated',{conseillerId:req.params.idconseiller,notification:notif_created});
+
+                        return res.status(200).json(rdv_updated);
+
+                       }
+                       else {
+                        return res.status(400).json({message:'something went wrong'});
+                       }
+                    })
+                }
+
+                else {
+                    return res.status(400).json({message:'something went wrong'});
+                }
+
+                
             }).catch(err=>{
                 return res.status(500).json(err);
             })
@@ -65,7 +99,18 @@ exports.deleteRdv = (req,res) => {
     .exec()
     .then(result => {
         if (result) {
-            return res.status(200).json({ message: 'rdv deleted' });
+
+                const Notification = new notificationModel({
+                _id:mongoose.Types.ObjectId(),
+                message:" rendez-vous est supprimé",
+                user:req.body.idconseiller
+                    })
+                    Notification.save().then(notif_created=>{
+                        if(notif_created){
+                            socket.emit('rdv-deleted',{conseillerId:req.body.idconseiller,notification:notif_created});
+                            return res.status(200).json({ message: 'rdv deleted' });
+                        }
+                    })
         } else {
             return res.status(400).json({ message: 'rdv delete failed' });
         }
@@ -88,16 +133,40 @@ try {
             Notification.save().then(notification_created=>{
                 if(notification_created){
                     socket.emit('rdv-notconfirmed',{clientId:req.params.idclient,notification:notification_created});
+                    res.status(200).json({ message: 'rdv non confirmé'});
+
                 }
                 else {
                     return res.status(400).json({ message: 'rdv confirm failed' });
                 }            
             })
         }
+        
         else {
             const rdv_updated = await rdvModel.findByIdAndUpdate(req.params.id,{$set:{confirmed:true}});
             if(rdv_updated) {
-                return res.status(200).json({ message: 'rdv confirmed' });
+                const Notification = new notificationModel({
+                    _id:mongoose.Types.ObjectId(),
+                    message:" rendez-vous est confirmé",
+                    user:req.params.idclient
+                })
+
+                Notification.save().then(notification_created=>{
+                    if(notification_created){
+                        try {
+                            socket.emit('rdv-confirmed',{clientId:req.params.idclient,notification:notification_created});
+                            res.status(200).json({ message: 'rdv confirmé',rdv_updated });
+
+                        }
+                        catch (err){
+                            console.log(err)
+                        }
+
+                    }
+                    else {
+                        return res.status(400).json({ message: 'rdv confirm failed' });
+                    }            
+                })
             }
         }}}
 catch (err){
