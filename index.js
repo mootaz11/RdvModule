@@ -44,12 +44,11 @@ app.use('/uploads', Express.static('uploads'));
 const server = http.createServer(app)
 
 const io = require('socket.io')(server,{cors: {
-    origin: "http://localhost:4200"
+    origin: "*",
   }})
 
 
 const connectedusers = []; 
-
 
 server.listen(3000, () => {
     console.log("server is listening on 3000");
@@ -86,6 +85,8 @@ server.listen(3000, () => {
         })
 
         socket.on('rdv-confirmed',({clientId,notification_created})=>{
+            console.log(connectedusers)
+
             const userIndex = connectedusers.findIndex((connecteduser) => {
                 return connecteduser.client === clientId
             })
@@ -104,14 +105,17 @@ server.listen(3000, () => {
             if (userIndex >= 0)
             {
                 connectedusers[userIndex].socketIds.forEach(socketId => {
-                    socket.broadcast.to(socketId).emit("rdv-notconfirmed-client", {client:clientId,notification_created});
+                    try {
+                        socket.broadcast.to(socketId).emit("rdv-notconfirmed-client", {client:clientId,notification_created});
+
+                    }
+                    catch (err){
+                        console.log(err)
+                    }
                 })
 
             }
         })
-
-       
-
 
         socket.on('rdv-created',({conseillerId,notification_created})=>{
             const userIndex = connectedusers.findIndex((connecteduser) => {
