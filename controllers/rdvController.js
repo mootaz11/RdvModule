@@ -35,11 +35,13 @@ exports.createRdv = (req,res) => {
             }
 
             }).catch(err=>{
+                console.log(err)
                 return res.status(500).json(err);
 
             })
     }
     catch(err){
+        console.log(err)
 
         return res.status(500).json(err)
     }
