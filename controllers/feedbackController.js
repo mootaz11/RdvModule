@@ -22,7 +22,6 @@ exports.createfeedback = (req,res)=>{
                 feedback:req.body.feedback,
                 rdv:req.body.rdv
             })
-
             feedback.save().then(feedback_created=>{
                 if(feedback_created){
                     return res.status(201).json({ message: 'feedback created', feedback_created });

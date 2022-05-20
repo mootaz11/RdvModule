@@ -49,8 +49,8 @@ exports.updateCalendar = async  (req,res)=>{
                 calendar_updated && res.status(200).json(calendar_updated);
                 !calendar_updated && res.status(400).json({message:'something went wrong'});
             }).catch(err=>{
-                return res.status(500).json(err);
 
+                return res.status(500).json(err);
             })
         }
         else {
@@ -58,6 +58,7 @@ exports.updateCalendar = async  (req,res)=>{
         }
     }
     catch(err){
+
         return res.status(500).json(err);
     }
 

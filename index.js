@@ -6,7 +6,7 @@ const cors = require("cors");
 const http = require('http');
 const jwt = require('jsonwebtoken');
 const app = Express();
-
+const NotificationController = require("../RdvModule/controllers/notificationController");
 app.use(BodyParser.urlencoded({ extended: false }))
 app.use(BodyParser.json());
 app.use(cors());
@@ -55,15 +55,18 @@ server.listen(3000, () => {
     io.on('connection', (socket) => {
         socket.on('connect-server',({token})=>{
             try {
+
                 let user = jwt.decode(token)
                 const clientIndex = connectedusers.findIndex((connected)=>{return connected.client == user.user_id});
                 if(clientIndex===-1){
-                    console.log(socket.id)
+                    console.log(user.user_id)
                     connectedusers.push({client:user.user_id,socketIds:[socket.id]});
                 }
                 else {
-                    if (!connectedusers[userIndex].socketIds.includes(socket.id))
-                    connectedusers[userIndex].socketIds.push(socket.id)
+                    console.log(user.user_id)
+
+                    if (!connectedusers[clientIndex].socketIds.includes(socket.id))
+                    connectedusers[clientIndex].socketIds.push(socket.id)
                     }
             }
             catch (err){
@@ -93,29 +96,22 @@ server.listen(3000, () => {
             if (userIndex >= 0)
             {
                 connectedusers[userIndex].socketIds.forEach(socketId => {
-                    socket.broadcast.to(socketId).emit('rdv-confirmed-client', {client:clientId,notification_created});
+                    socket.broadcast.emit('rdv-confirmed-client', {client:clientId,notification_created});
                 })
             }
         })
 
         socket.on('rdv-notconfirmed',({clientId,notification_created})=>{
-            const userIndex = connectedusers.findIndex((connecteduser) => {
-                return connecteduser.client === clientId
-            })
-            if (userIndex >= 0)
-            {
-                connectedusers[userIndex].socketIds.forEach(socketId => {
                     try {
-                        socket.broadcast.to(socketId).emit("rdv-notconfirmed-client", {client:clientId,notification_created});
-
+                        socket.broadcast.emit("rdv-notconfirmed-client", {client:clientId,notification_created});
                     }
-                    catch (err){
+                    catch (err){    
                         console.log(err)
                     }
                 })
+            
 
-            }
-        })
+     
 
         socket.on('rdv-created',({conseillerId,notification_created})=>{
             const userIndex = connectedusers.findIndex((connecteduser) => {
@@ -125,7 +121,7 @@ server.listen(3000, () => {
             if (userIndex >= 0)
             {
                 connectedusers[userIndex].socketIds.forEach(socketId => {
-                    socket.broadcast.to(socketId).emit("rdv-created-client", {conseillerId,notification_created});
+                    socket.broadcast.emit("rdv-created-client", {conseillerId,notification_created});
                 })
 
             }
@@ -136,9 +132,9 @@ server.listen(3000, () => {
                 return connecteduser.client === conseillerId
             })
             if (userIndex >= 0)
-            {
+            {   console.log(conseillerId)
                 connectedusers[userIndex].socketIds.forEach(socketId => {
-                    socket.broadcast.to(socketId).emit("rdv-deleted-client",{conseillerId,notification_created});
+                    socket.broadcast.emit("rdv-deleted-client",{conseillerId,notification_created});
                 })
             }
         })
@@ -151,7 +147,7 @@ server.listen(3000, () => {
             if (userIndex >= 0)
             {
                 connectedusers[userIndex].socketIds.forEach(socketId => {
-                    socket.broadcast.to(socketId).emit("rdv-updated-client",{conseillerId,notification_created});
+                    socket.broadcast.emit("rdv-updated-client",{conseillerId,notification_created});
                 })
             }
 

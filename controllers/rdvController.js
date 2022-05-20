@@ -22,9 +22,9 @@ exports.createRdv = (req,res) => {
                         message:" rendez-vous est créé",
                         user:req.params.idconseiller
                     })
-                    Notification.save().then(notif_created=>{
-                        if (notif_created){
-                            socket.emit('rdv-created',{conseillerId:req.params.idconseiller,notification:notif_created});
+                    Notification.save().then(notification_created=>{
+                        if (notification_created){
+                            socket.emit('rdv-created',{conseillerId:req.params.idconseiller,notification_created:notification_created});
                            res.status(201).json({ message: 'rdv created', rdvCreated });
                         }
                     })
@@ -63,12 +63,10 @@ exports.updateRdv = async (req,res) => {
                         user:req.params.idconseiller
                     })
 
-                    Notification.save().then(notif_created=>{
-                       if(notif_created){
-                        socket.emit('rdv-updated',{conseillerId:req.params.idconseiller,notification:notif_created});
-
+                    Notification.save().then(notification_created=>{
+                       if(notification_created){
+                        socket.emit('rdv-updated',{conseillerId:req.params.idconseiller,notification_created:notification_created});
                         return res.status(200).json(rdv_updated);
-
                        }
                        else {
                         return res.status(400).json({message:'something went wrong'});
@@ -101,15 +99,15 @@ exports.deleteRdv = (req,res) => {
     .exec()
     .then(result => {
         if (result) {
-
                 const Notification = new notificationModel({
                 _id:mongoose.Types.ObjectId(),
-                message:" rendez-vous est supprimé",
-                user:req.body.idconseiller
+                message:" rendez-vous est annulé",
+                user:req.params.idconseiller
                     })
-                    Notification.save().then(notif_created=>{
-                        if(notif_created){
-                            socket.emit('rdv-deleted',{conseillerId:req.body.idconseiller,notification:notif_created});
+                    console.log(req.params.idconseiller)
+                    Notification.save().then(notification_created=>{
+                        if(notification_created){
+                            socket.emit('rdv-deleted',{conseillerId:req.params.idconseiller,notification_created:notification_created});
                             return res.status(200).json({ message: 'rdv deleted' });
                         }
                     })
@@ -134,7 +132,7 @@ try {
             })
             Notification.save().then(notification_created=>{
                 if(notification_created){
-                    socket.emit('rdv-notconfirmed',{clientId:req.params.idclient,notification:notification_created});
+                    socket.emit('rdv-notconfirmed',{clientId:req.params.idclient,notification_created:notification_created});
                     res.status(200).json({ message: 'rdv non confirmé'});
 
                 }
@@ -156,7 +154,7 @@ try {
                 Notification.save().then(notification_created=>{
                     if(notification_created){
                         try {
-                            socket.emit('rdv-confirmed',{clientId:req.params.idclient,notification:notification_created});
+                            socket.emit('rdv-confirmed',{clientId:req.params.idclient,notification_created:notification_created});
                             res.status(200).json({ message: 'rdv confirmé',rdv_updated });
 
                         }
@@ -178,7 +176,8 @@ catch (err){
 
 exports.getRdvsByConseiller = async (req,res) =>{
     try {
-    const rdvs = await rdvModel.find({$and :[{participants:{"$in":[req.params.idconseiller]}},{state:"opened"}]}).populate('participants')
+    let  rdvs = await rdvModel.find({state:"opened"}).populate('participants')
+    rdvs = rdvs.filter(rdv=> rdv.participants.findIndex(participant=>{return participant._id == req.params.idconseiller}) >= 0 )
     rdvs && rdvs.length>0 &&  res.status(200).json(rdvs);
     rdvs && rdvs.length==0 && res.status(404).json({message:"rdvs not found"});
     }
