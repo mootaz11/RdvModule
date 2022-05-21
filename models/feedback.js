@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 
 const feedback = new mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
-    feedback: { type: Number, required: true },
+    feedback: { type: String, required: true },
     rdv:{type:mongoose.Schema.Types.ObjectId,ref:'rdvs'}
 });
 

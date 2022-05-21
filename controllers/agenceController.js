@@ -40,8 +40,6 @@ exports.createAgence = (req,res)=>{
         image:req.file.path,
         conseillers : []
     })
-    
-    console.log(req.body.title);
 
     agence.save().then((agence_crated) =>{
         if (agence_crated) {
@@ -118,28 +116,25 @@ exports.addConseiller=async (req,res)=>{
     })
     
     }
-
-    
-
 exports.deleteConseiller=(req,res)=>{
-    userModel.findOne({$and : [{_id:req.params.idconseiller},{role:"conseiller"}]}).exec()
-    .then(async conseiller=>{
-            const agence = await agenceModel.findByIdAndUpdate(req.params.idagence,{$pull:{conseillers:conseiller}})
-            if(agence){
-                conseiller.agence=null;
-                conseiller.save().then(
-                    updated=>{
-                updated &&  res.status(200).json("conseiller deleted");
-                !updated  && res.status(404).json("conseiller not found ");  
-                }).catch(err=>{
-                    return res.status(500).json(err);
-                })
-            }
-            else {
-                return res.status(404).json("agence not found ");  
-            }
+    userModel.findOneAndUpdate({_id:req.params.idconseiller},{$set:{agence:null}}).exec()
+    .then(async conseillerupdated=>{
+       if(conseillerupdated){
+           const agence = await agenceModel.findByIdAndUpdate(req.params.idagence,{$pull:{conseillers:req.params.idconseiller}});
+           if(agence){
+               return res.status(200).json({message:"conseiller deleted"});
+           }
+           else {
+            return res.status(404).json({message:"agence not found "});
+           }
+       }
+       else { 
+        return res.status(404).json({message:"conseiller not found "});
+       }
+          
     })
     .catch(err=>{
+        console.log(err);
         return res.status(500).json(err);
     })
     

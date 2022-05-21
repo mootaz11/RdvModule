@@ -1,4 +1,5 @@
 const feedbackModel = require("../models/feedback");
+const mongoose = require("mongoose");
 
 
 exports.getfeedbacks = async  (req,res)=>{
@@ -25,7 +26,6 @@ exports.createfeedback = (req,res)=>{
             feedback.save().then(feedback_created=>{
                 if(feedback_created){
                     return res.status(201).json({ message: 'feedback created', feedback_created });
-
                 }
                 else 
                 {
@@ -33,11 +33,13 @@ exports.createfeedback = (req,res)=>{
                 }
     
             }).catch(err=>{
+                console.log(err);
                 return res.status(500).json(err);
 
             })
     }
     catch(err){
+        console.log(err);
         return res.status(500).json(err);
 
     }
