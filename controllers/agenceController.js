@@ -40,6 +40,9 @@ exports.createAgence = (req,res)=>{
         image:req.file.path,
         conseillers : []
     })
+    
+    console.log(req.body.title);
+
     agence.save().then((agence_crated) =>{
         if (agence_crated) {
             return res.status(201).json({ message: 'agence created', agence_crated });

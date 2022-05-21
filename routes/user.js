@@ -16,4 +16,5 @@ router.patch("/client/:id",authentication,userController.updateClient);
 router.delete("/client/:id",authentication,userController.deleteClient);
 router.delete("/conseiller/:id",authentication,userController.deleteConseiller);
 router.get("/:id",userController.getUser)
+router.patch("conseiller/validate/:id",authentication,userController.validateConseiller);
 module.exports = router;    

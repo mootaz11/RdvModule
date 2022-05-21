@@ -104,10 +104,15 @@ if (user) {
             return new Error("comparing failed");
         }
         if (same) {
-            let nom=user.nom
-            let role=user.role
-            const token = jwt.sign({user_id: user._id, role: user.role,nom:user.nom }, "Secret", { expiresIn: 60 * 60 * 60 })
-            return res.status(200).json({ message: 'login successfully', token,nom,role  });
+            if(user.role=="conseiller"&&user.validated==false){
+                return res.status(401).json({ message: 'conseiller not validated' });
+            }
+            else {
+                let nom=user.nom
+                let role=user.role;
+                const token = jwt.sign({user_id: user._id, role:user.role,nom:user.nom}, "Secret", { expiresIn: 60 * 60 * 60 })
+               return res.status(200).json({ message: 'login successfully', token,nom,role});    
+            }
         } 
         else
         {
@@ -243,7 +248,20 @@ exports.deleteConseiller = (req,res)=>{
         return res.status(500).json(err);
     })
 }
-
+exports.validateConseiller = (req,res)=>{
+    userModel.findByIdAndUpdate(req.params.idconseiller,{$set:{validated:true}})
+    .exec()
+    .then(result => {
+        if (result) {
+            return res.status(200).json({ message: 'conseiller validated' });
+        } else {
+            return res.status(401).json({ message: 'conseiller validation failed' });
+        }
+    })
+    .catch(err => {
+        return res.status(500).json(err);
+    })
+}
 
 
 exports.getUser =(req,res)=>{

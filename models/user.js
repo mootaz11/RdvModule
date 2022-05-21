@@ -17,7 +17,8 @@ const userModel = new mongoose.Schema({
     email: { type: String, required: true },
     agence: {type:mongoose.Schema.Types.ObjectId,ref:'agences'},
     calendar: {type:mongoose.Schema.Types.ObjectId,ref:'calendars'},
-    image: { type: String, required: true }
+    image: { type: String, required: true },
+    validated : { type :String ,default:false},
 });
 
 
