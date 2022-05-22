@@ -4,7 +4,10 @@ const mongoose = require("mongoose");
 
 exports.getfeedbacks = async  (req,res)=>{
     try {
-        const feedbacks = await feedbackModel.find();
+        let feedbacks = await feedbackModel.find().populate({path:'rdv',populate:'participants'})
+        feedbacks = feedbacks.map(feedback => {
+            feedback.rdv.participants = feedback.rdv.participants.filter(participant => participant.role != "conseiller");
+            return feedback});
         feedbacks && res.status(200).json(feedbacks);
         !feedbacks && res.status(404).json({message:"feedback not found"});
 

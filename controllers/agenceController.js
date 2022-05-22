@@ -55,15 +55,19 @@ exports.createAgence = (req,res)=>{
 
 exports.updateAgence = async (req,res)=>{
     try {
+        console.log(req.params.id)
         const agence = await agenceModel.findById(req.params.id);
         if(agence){
+            console.log(req.body)
             Object.keys(req.body).forEach(element=>{
                 agence[element]=req.body[element];
             })
+            agence.image=req.file.path
             agence.save().then(agence_updated=>{
                 agence_updated && res.status(200).json(agence_updated);
                 !agence_updated && res.status(400).json({message:'something went wrong'});
             }).catch(err=>{
+                console.log(err);
                 return res.status(500).json(err);
 
             })
@@ -73,6 +77,7 @@ exports.updateAgence = async (req,res)=>{
         }
     }
     catch(err){
+        console.log(err);
         return res.status(500).json(err);
     }
 }

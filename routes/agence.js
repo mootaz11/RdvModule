@@ -7,7 +7,7 @@ const multer_image=require('../config/multer_image')
 router.get("/",agenceController.getAgences);
 router.get("/:id",authentication,agenceController.getAgence);
 router.post("/",authentication,multer_image.single('image'), agenceController.createAgence);
-router.patch("/:id",authentication,agenceController.updateAgence);
+router.patch("/:id",authentication,multer_image.single('image'),authentication,agenceController.updateAgence);
 router.delete("/:id",authentication,agenceController.deleteAgence);
 router.delete("/:idagence/:idconseiller",authentication,agenceController.deleteConseiller);
 
