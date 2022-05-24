@@ -1,9 +1,34 @@
 const rdvModel = require("../models/rdv");
 const socket = require('socket.io-client')("http://localhost:3000");
 const notificationModel = require("../models/notification");
+const userModel = require("../models/user");
+
 const mongoose = require('mongoose');
 
+exports.getRdvs = async (req,res)=>{
+    try {
+        let conseillers = await  userModel.find({role:"conseiller"});
+        let rdvs = await rdvModel.find().populate('participants');
+        let data = [];
+        for(i = 0 ; i<conseillers.length;i++){
+            let total = 0 ; 
+            for(j=0 ; j<rdvs.length;j++){
+                if(rdvs[j].participants.findIndex(participant=>{return participant._id.toString()==conseillers[i]._id.toString()})>=0) 
+                {
+                    total+=1;
+                }
+            }
+            data.push({conseiller:conseillers[i].nom + " "+conseillers[i].prenom,rdvs:total})
+        }
+        data && res.status(200).json(data);
+        !data && res.status(404).json({message:"notification not found"});
+    }
 
+    catch(err) {
+        console.log(err)
+        return res.status(500).json(err);
+    }
+}
 exports.createRdv = (req,res) => { 
     try { 
             const  rdv = new rdvModel({

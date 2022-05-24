@@ -3,7 +3,7 @@ const authentication = require("../middlewares/authentication");
 const rdvController = require("../controllers/rdvController");
 
 
-
+router.get('/',authentication,rdvController.getRdvs);
 router.get("/:id",authentication,rdvController.getRdv);
  router.get("/conseiller/:idconseiller",authentication,rdvController.getRdvsByConseiller);
 router.post("/:idconseiller",authentication, rdvController.createRdv);
