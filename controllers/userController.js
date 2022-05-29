@@ -2,7 +2,7 @@ const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const userModel = require('../models/user');
-
+const agenceModel=require('../models/agence')
 
 exports.getAllUsers = async (req,res) =>{
     try {
@@ -15,8 +15,6 @@ exports.getAllUsers = async (req,res) =>{
         return res.status(500).json(err);
     }
 }
-
-
 exports.getAllConseillers = async  (req,res) => {
     try { 
        const conseillers = await userModel.find({role:'conseiller'}).populate('calendar');
@@ -129,7 +127,22 @@ catch( err ) {
 }
 
 
-
+exports.updateConseilleragence=(req,res)=>{
+    userModel.findOneAndUpdate({_id:req.params.id},{r$set:{agence:req.body.newagence}}).exec()
+   .then(async  conseiller=>{
+       if(conseiller)
+                 {
+                     await agenceModel.findByIdAndUpdate(req.body.oldagence,{$pull:{conseillers:conseiller._id}});   
+                     await agenceModel.findByIdAndUpdate(req.body.newagence,{$push:{conseillers:conseiller._id}});   
+                     return res.status(200).json(conseiller);
+                 }
+  }).catch(err=>{
+      console.log(err)
+     return res.status(500).json(err);
+ 
+  })
+ }
+                  
 
 exports.updateConseiller = (req,res)=>{
 

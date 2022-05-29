@@ -1,7 +1,8 @@
 const router = require("express").Router()
 const authentication = require("../middlewares/authentication");
 const userController = require("../controllers/userController");
-const multer_image=require('../config/multer_image')
+const multer_image=require('../config/multer_image');
+const { route } = require("./rdv");
 
 router.get("/client",userController.getAllClients);
 router.get("/conseiller",userController.getAllConseillers);
@@ -17,4 +18,5 @@ router.delete("/client/:id",authentication,userController.deleteClient);
 router.delete("/conseiller/:id",authentication,userController.deleteConseiller);
 router.get("/:id",userController.getUser)
 router.patch("conseiller/validate/:id",authentication,userController.validateConseiller);
+router.patch("/conseiller/updateagence/:id",authentication,userController.updateConseilleragence)
 module.exports = router;    
